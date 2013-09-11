@@ -68,6 +68,13 @@ class TetrisController < UIViewController
     @stone_preview = StonePreview.alloc.initWithFrame([[5, 5], [25, 25]])
     
     view.addSubview(@stone_preview)
+    
+    # setup up line removed callback
+    @board.on_line_removed do |y|
+      @board.line_iterator(y) do |x|
+        flip(@board_sections[y][x])
+      end
+    end
   end
   
   def start
@@ -88,6 +95,10 @@ class TetrisController < UIViewController
     if @timer
       @timer.invalidate
       @timer = nil
+    end
+    
+    @board.board_iterator do |y, x, value|
+      flip(@board_sections[y][x]) if value != 0
     end
   end
   
@@ -391,6 +402,17 @@ class TetrisController < UIViewController
     if(sender.state == UIGestureRecognizerStateEnded)
       rotate
     end
+  end
+  
+  # flip a view
+  def flip(view)
+    UIView.transitionWithView(view, 
+                              duration: 0.5, 
+                              options: UIViewAnimationOptionTransitionFlipFromBottom, 
+                              animations: proc { 
+                                # any other code that we want to run!
+                              }, 
+                              completion:nil)
   end
 
 end

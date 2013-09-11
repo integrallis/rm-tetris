@@ -19,11 +19,15 @@ class Board
   end
 
 	def remove_line(y) 
+	  if @line_removed_callback
+      @line_removed_callback.call y
+    end
+	  
     y.downto(0) do |i|
       copy_line(i - 1, i)
     end
     
-    @field[0]= Array.new(@width, 0)
+    @field[0] = Array.new(@width, 0)
 	end
 
 	def remove_full_lines
@@ -87,6 +91,16 @@ class Board
         yield y, x, @field[y][x]
       end
     end
+  end
+  
+  def line_iterator(y, &block)
+    (0..@field[y].length - 1).each do |x|
+      yield x, @field[y][x]
+    end    
+  end
+  
+  def on_line_removed(&block)
+    @line_removed_callback = block
   end
 	
 end
